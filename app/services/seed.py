@@ -1,20 +1,11 @@
-import json
 import random
-from datetime import datetime
 
 from sqlalchemy.orm import Session
 
+from app.models.bridge import Bridge
 from app.models.embankment import Embankment
 from app.models.pipeline import PipeLine
 from app.models.powerline import PowerLine
-
-SAMARA_BBOX = {
-    "min_lat": 51.0,
-    "max_lat": 55.5,
-    "min_lon": 47.0,
-    "max_lon": 52.0,
-}
-
 
 OWNERS = [
     "СамараЭнерго",
@@ -24,63 +15,95 @@ OWNERS = [
 ]
 
 
-def _rand_lat() -> float:
-    return round(random.uniform(SAMARA_BBOX["min_lat"], SAMARA_BBOX["max_lat"]), 6)
-
-
-def _rand_lon() -> float:
-    return round(random.uniform(SAMARA_BBOX["min_lon"], SAMARA_BBOX["max_lon"]), 6)
-
-
-def _linestring_geojson(num_points: int = 5) -> str:
-    coords = [[_rand_lon(), _rand_lat()] for _ in range(num_points)]
-    return json.dumps({"type": "LineString", "coordinates": coords}, ensure_ascii=False)
-
-
-def _polygon_geojson(size: float = 0.05) -> str:
-    # simple square around a center point
-    center_lat, center_lon = _rand_lat(), _rand_lon()
-    half = size / 2
-    ring = [
-        [center_lon - half, center_lat - half],
-        [center_lon - half, center_lat + half],
-        [center_lon + half, center_lat + half],
-        [center_lon + half, center_lat - half],
-        [center_lon - half, center_lat - half],
-    ]
-    return json.dumps({"type": "Polygon", "coordinates": [ring]}, ensure_ascii=False)
-
-
-def seed_all(
-    db: Session, *, n_power: int = 10, n_pipe: int = 8, n_emb: int = 6
-) -> None:
+def seed_all(db: Session) -> None:
     if (
         db.query(PowerLine).first()
         or db.query(PipeLine).first()
         or db.query(Embankment).first()
+        or db.query(Bridge).first()
     ):
         return
 
-    random.seed(datetime.now().timestamp())
+    # Предопределенные координаты
+    bridges_data = [
+        (53.388960, 50.319780),
+        (53.432933, 50.180503),
+        (53.433544, 50.117006),
+        (53.433752, 50.115442),
+    ]
 
-    # Power lines
-    for i in range(1, n_power + 1):
-        lat, lon = _rand_lat(), _rand_lon()
+    embankments_data = [
+        (53.392693, 50.311848),
+        (53.400803, 50.303161),
+        (53.401123, 50.302899),
+        (53.412280, 50.249981),
+        (53.415327, 50.219042),
+        (53.420585, 50.184330),
+    ]
+
+    powerlines_data = [
+        (53.228661, 50.285445),
+        (53.231564, 50.287240),
+        (53.234900, 50.289239),
+        (53.236998, 50.290605),
+        (53.244703, 50.295111),
+        (53.258239, 50.307644),
+        (53.260358, 50.309411),
+        (53.262078, 50.310946),
+        (53.398558, 50.304464),
+        (53.400224, 50.303558),
+        (53.401891, 50.302233),
+    ]
+
+    pipelines_data = [
+        (53.405487, 50.288284),
+        (53.396522, 50.307507),
+        (53.396522, 50.307507),
+        (53.396522, 50.307507),
+    ]
+
+    # Мосты
+    for i, (lat, lon) in enumerate(bridges_data, 1):
+        db.add(
+            Bridge(
+                name=f"Мост-{i}",
+                owner=random.choice(OWNERS),
+                year_commissioned=random.randint(1960, 2020),
+                bridge_type=random.choice(["rail", "road", "pedestrian"]),
+                length_m=random.randint(50, 500),
+                centroid_lat=lat,
+                centroid_lon=lon,
+            )
+        )
+
+    # Насыпи
+    for i, (lat, lon) in enumerate(embankments_data, 1):
+        db.add(
+            Embankment(
+                name=f"Насыпь-{i}",
+                owner=random.choice(OWNERS),
+                year_commissioned=random.randint(1950, 2020),
+                type=random.choice(["rail", "road"]),
+                centroid_lat=lat,
+                centroid_lon=lon,
+            )
+        )
+
+    # ЛЭП
+    for i, (lat, lon) in enumerate(powerlines_data, 1):
         db.add(
             PowerLine(
                 name=f"ЛЭП-{i}",
                 owner=random.choice(OWNERS),
                 year_commissioned=random.randint(1970, 2022),
                 voltage_kv=random.choice([35, 110, 220, 500]),
-                geometry_geojson=_linestring_geojson(),
                 centroid_lat=lat,
                 centroid_lon=lon,
             )
         )
 
-    # Pipelines
-    for i in range(1, n_pipe + 1):
-        lat, lon = _rand_lat(), _rand_lon()
+    # Трубопроводы
+    for i, (lat, lon) in enumerate(pipelines_data, 1):
         db.add(
             PipeLine(
                 name=f"Трубопровод-{i}",
@@ -88,22 +111,6 @@ def seed_all(
                 year_commissioned=random.randint(1970, 2022),
                 medium=random.choice(["oil", "gas"]),
                 diameter_mm=random.choice([219, 325, 530, 720, 1020]),
-                geometry_geojson=_linestring_geojson(),
-                centroid_lat=lat,
-                centroid_lon=lon,
-            )
-        )
-
-    # Embankments
-    for i in range(1, n_emb + 1):
-        lat, lon = _rand_lat(), _rand_lon()
-        db.add(
-            Embankment(
-                name=f"Насыпь-{i}",
-                owner=random.choice(OWNERS),
-                year_commissioned=random.randint(1950, 2020),
-                type=random.choice(["rail", "road"]),
-                geometry_geojson=_polygon_geojson(),
                 centroid_lat=lat,
                 centroid_lon=lon,
             )

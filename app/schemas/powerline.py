@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 
-from app.schemas.geo import LineString, Point
+from app.schemas.geo import Point
 
 
 class PowerLineBase(BaseModel):
@@ -9,7 +9,6 @@ class PowerLineBase(BaseModel):
     year_commissioned: int
     voltage_kv: int
     centroid: Point
-    geometry: LineString
 
 
 class PowerLineRead(PowerLineBase):
@@ -19,3 +18,16 @@ class PowerLineRead(PowerLineBase):
         from_attributes = True
 
 
+class PowerLineCreate(PowerLineBase):
+    """Схема для создания новой ЛЭП"""
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "name": "ВЛ 500кВ Самара-Тольятти",
+                "owner": "СамараЭнерго",
+                "year_commissioned": 1980,
+                "voltage_kv": 500,
+                "centroid": {"lat": 53.228661, "lon": 50.285445},
+            }
+        }

@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 
-from app.schemas.geo import Point, Polygon
+from app.schemas.geo import Point
 
 
 class EmbankmentBase(BaseModel):
@@ -9,7 +9,6 @@ class EmbankmentBase(BaseModel):
     year_commissioned: int
     type: str
     centroid: Point
-    geometry: Polygon
 
 
 class EmbankmentRead(EmbankmentBase):
@@ -17,3 +16,24 @@ class EmbankmentRead(EmbankmentBase):
 
     class Config:
         from_attributes = True
+
+
+class EmbankmentCreate(EmbankmentBase):
+    """Схема для создания новой насыпи"""
+
+    name: str
+    owner: str
+    year_commissioned: int
+    type: str
+    centroid: Point
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "name": "Насыпь на участке Самара-Тольятти",
+                "owner": "РЖД Поволжская",
+                "year_commissioned": 1960,
+                "type": "rail",
+                "centroid": {"lat": 53.392693, "lon": 50.311848},
+            }
+        }

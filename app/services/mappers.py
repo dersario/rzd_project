@@ -1,13 +1,12 @@
-import json
 from typing import Any
 
+from app.models.bridge import Bridge
 from app.models.embankment import Embankment
 from app.models.pipeline import PipeLine
 from app.models.powerline import PowerLine
 
 
 def powerline_to_read(model: PowerLine) -> dict[str, Any]:
-    geom = json.loads(model.geometry_geojson)
     return {
         "id": model.id,
         "name": model.name,
@@ -15,16 +14,10 @@ def powerline_to_read(model: PowerLine) -> dict[str, Any]:
         "year_commissioned": model.year_commissioned,
         "voltage_kv": model.voltage_kv,
         "centroid": {"lat": model.centroid_lat, "lon": model.centroid_lon},
-        "geometry": {
-            "coordinates": [
-                {"lat": lat, "lon": lon} for lon, lat in geom.get("coordinates", [])
-            ]
-        },
     }
 
 
 def pipeline_to_read(model: PipeLine) -> dict[str, Any]:
-    geom = json.loads(model.geometry_geojson)
     return {
         "id": model.id,
         "name": model.name,
@@ -33,17 +26,10 @@ def pipeline_to_read(model: PipeLine) -> dict[str, Any]:
         "medium": model.medium,
         "diameter_mm": model.diameter_mm,
         "centroid": {"lat": model.centroid_lat, "lon": model.centroid_lon},
-        "geometry": {
-            "coordinates": [
-                {"lat": lat, "lon": lon} for lon, lat in geom.get("coordinates", [])
-            ]
-        },
     }
 
 
 def embankment_to_read(model: Embankment) -> dict[str, Any]:
-    geom = json.loads(model.geometry_geojson)
-    ring = geom.get("coordinates", [[]])[0]
     return {
         "id": model.id,
         "name": model.name,
@@ -51,5 +37,16 @@ def embankment_to_read(model: Embankment) -> dict[str, Any]:
         "year_commissioned": model.year_commissioned,
         "type": model.type,
         "centroid": {"lat": model.centroid_lat, "lon": model.centroid_lon},
-        "geometry": {"coordinates": [{"lat": lat, "lon": lon} for lon, lat in ring]},
+    }
+
+
+def bridge_to_read(model: Bridge) -> dict[str, Any]:
+    return {
+        "id": model.id,
+        "name": model.name,
+        "owner": model.owner,
+        "year_commissioned": model.year_commissioned,
+        "bridge_type": model.bridge_type,
+        "length_m": model.length_m,
+        "centroid": {"lat": model.centroid_lat, "lon": model.centroid_lon},
     }

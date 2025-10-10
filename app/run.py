@@ -1,13 +1,14 @@
 import uvicorn
 
+from app.main import setup_app
+
 
 def main() -> None:
+    app = setup_app()
     uvicorn.run(
-        "app.main:app",
-        host="127.0.0.1",
-        port=8000,
-        reload=True,
-        log_level="info",
+        app,
+        host="0.0.0.0",
+        port=8080,
     )
 
 
