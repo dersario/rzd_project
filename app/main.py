@@ -24,7 +24,6 @@ async def lifespan(app: FastAPI):
         finally:
             db.close()
     except Exception:
-        # silently continue if seeding fails to avoid blocking startup
         pass
     yield
 
