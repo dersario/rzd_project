@@ -5,6 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.db.session import engine
 from app.models import Base
+from app.routers.accidents import router as accident_router
 from app.routers.bridges import router as bridges_router
 from app.routers.embankments import router as embankments_router
 from app.routers.pipelines import router as pipelines_router
@@ -48,4 +49,5 @@ def setup_app():
     app.include_router(pipelines_router)
     app.include_router(embankments_router)
     app.include_router(bridges_router)
+    app.include_router(accident_router)
     return app

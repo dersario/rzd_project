@@ -1,5 +1,6 @@
 from typing import Any
 
+from app.models.accidents import Accident
 from app.models.bridge import Bridge
 from app.models.embankment import Embankment
 from app.models.pipeline import PipeLine
@@ -48,5 +49,15 @@ def bridge_to_read(model: Bridge) -> dict[str, Any]:
         "year_commissioned": model.year_commissioned,
         "bridge_type": model.bridge_type,
         "length_m": model.length_m,
+        "centroid": {"lat": model.centroid_lat, "lon": model.centroid_lon},
+    }
+
+
+def accident_to_read(model: Accident) -> dict[str, Any]:
+    return {
+        "id": model.id,
+        "responsible": model.responsible,
+        "date": model.date,
+        "accident_type": model.accident_type,
         "centroid": {"lat": model.centroid_lat, "lon": model.centroid_lon},
     }
