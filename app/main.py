@@ -10,6 +10,8 @@ from app.routers.bridges import router as bridges_router
 from app.routers.embankments import router as embankments_router
 from app.routers.pipelines import router as pipelines_router
 from app.routers.powerlines import router as powerlines_router
+from app.routers.users import users_routers
+from app.settings import Settings
 
 
 @asynccontextmanager
@@ -45,6 +47,10 @@ def setup_app():
     def health() -> dict:
         return {"status": "ok"}
 
+    settings = Settings()
+    app.state.token_secret = settings.token_secret
+
+    app.include_router(users_routers)
     app.include_router(powerlines_router)
     app.include_router(pipelines_router)
     app.include_router(embankments_router)

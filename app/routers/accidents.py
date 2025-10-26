@@ -2,8 +2,10 @@ from fastapi import APIRouter, Depends
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from app.auth import AuthorizedAccount
 from app.db.session import get_db
 from app.models.accidents import Accident
+from app.permissions import Authenticated
 from app.schemas.accidents import AccidentCreate, AccidentRead
 from app.services.mappers import accident_to_read
 
@@ -15,7 +17,13 @@ def list_accidents(db: Session = Depends(get_db)):
     models = db.execute(select(Accident)).scalars().all()
     return [accident_to_read(m) for m in models]
 
-@router.post("/", response_model=AccidentRead, summary="Создать метку аварии")
+
+@router.post(
+    "/",
+    response_model=AccidentRead,
+    summary="Создать метку аварии",
+    dependencies=[Depends(AuthorizedAccount(Authenticated()))],
+)
 def create_accident(accident: AccidentCreate, db: Session = Depends(get_db)):
     db_accident = Accident(
         responsible=accident.responsible,

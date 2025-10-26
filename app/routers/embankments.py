@@ -2,8 +2,10 @@ from fastapi import APIRouter, Depends
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from app.auth import AuthorizedAccount
 from app.db.session import get_db
 from app.models.embankment import Embankment
+from app.permissions import Authenticated
 from app.schemas.embankment import EmbankmentCreate, EmbankmentRead
 from app.services.mappers import embankment_to_read
 
@@ -16,7 +18,12 @@ def list_embankments(db: Session = Depends(get_db)):
     return [embankment_to_read(m) for m in models]
 
 
-@router.post("/", response_model=EmbankmentRead, summary="Создать новую насыпь")
+@router.post(
+    "/",
+    response_model=EmbankmentRead,
+    summary="Создать новую насыпь",
+    dependencies=[Depends(AuthorizedAccount(Authenticated()))],
+)
 def create_embankment(embankment: EmbankmentCreate, db: Session = Depends(get_db)):
     db_embankment = Embankment(
         name=embankment.name,

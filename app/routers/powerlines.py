@@ -2,8 +2,10 @@ from fastapi import APIRouter, Depends
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from app.auth import AuthorizedAccount
 from app.db.session import get_db
 from app.models.powerline import PowerLine
+from app.permissions import Authenticated
 from app.schemas.powerline import PowerLineCreate, PowerLineRead
 from app.services.mappers import powerline_to_read
 
@@ -16,8 +18,16 @@ def list_powerlines(db: Session = Depends(get_db)):
     return [powerline_to_read(m) for m in models]
 
 
-@router.post("/", response_model=PowerLineRead, summary="Создать новую ЛЭП")
-def create_powerline(powerline: PowerLineCreate, db: Session = Depends(get_db)):
+@router.post(
+    "/",
+    response_model=PowerLineRead,
+    summary="Создать новую ЛЭП",
+    dependencies=[Depends(AuthorizedAccount(Authenticated()))],
+)
+def create_powerline(
+    powerline: PowerLineCreate,
+    db: Session = Depends(get_db),
+):
     db_powerline = PowerLine(
         name=powerline.name,
         owner=powerline.owner,

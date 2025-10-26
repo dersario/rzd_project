@@ -2,8 +2,10 @@ from fastapi import APIRouter, Depends
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from app.auth import AuthorizedAccount
 from app.db.session import get_db
 from app.models.bridge import Bridge
+from app.permissions import Authenticated
 from app.schemas.bridge import BridgeCreate, BridgeRead
 from app.services.mappers import bridge_to_read
 
@@ -16,7 +18,12 @@ def list_bridges(db: Session = Depends(get_db)):
     return [bridge_to_read(m) for m in models]
 
 
-@router.post("/", response_model=BridgeRead, summary="Создать новый мост")
+@router.post(
+    "/",
+    response_model=BridgeRead,
+    summary="Создать новый мост",
+    dependencies=[Depends(AuthorizedAccount(Authenticated()))],
+)
 def create_bridge(bridge: BridgeCreate, db: Session = Depends(get_db)):
     db_bridge = Bridge(
         name=bridge.name,
