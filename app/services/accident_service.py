@@ -25,6 +25,7 @@ class AccidentService:
             responsible=accident.responsible,
             date=accident.date,
             accident_type=accident.accident_type,
+            description=accident.description,
             centroid_lat=accident.centroid.lat,
             centroid_lon=accident.centroid.lon,
         )

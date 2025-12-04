@@ -1,3 +1,5 @@
+from typing import Optional
+
 from pydantic import BaseModel
 
 from app.schemas.geo import Point
@@ -10,6 +12,7 @@ class BridgeBase(BaseModel):
     bridge_type: str
     length_m: int
     centroid: Point
+    description: Optional[str] = None
 
 
 class BridgeRead(BridgeBase):

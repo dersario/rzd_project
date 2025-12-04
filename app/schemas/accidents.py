@@ -1,4 +1,5 @@
 from datetime import date
+from typing import Optional
 
 from pydantic import BaseModel
 
@@ -10,6 +11,7 @@ class AccidentBase(BaseModel):
     date: date
     accident_type: str
     centroid: Point
+    description: Optional[str] = None
 
 
 class AccidentRead(AccidentBase):

@@ -35,6 +35,7 @@ class ObjectService:
             owner=bridge.owner,
             type=ObjectType.BRIDGE,
             year_commissioned=bridge.year_commissioned,
+            description=bridge.description,
             centroid_lat=bridge.centroid.lat,
             centroid_lon=bridge.centroid.lon,
             specific_data={
@@ -57,6 +58,7 @@ class ObjectService:
             owner=embankment.owner,
             type=ObjectType.EMBANKMENT,
             year_commissioned=embankment.year_commissioned,
+            description=embankment.description,
             centroid_lat=embankment.centroid.lat,
             centroid_lon=embankment.centroid.lon,
             specific_data={
@@ -78,6 +80,7 @@ class ObjectService:
             owner=pipeline.owner,
             type=ObjectType.PIPELINE,
             year_commissioned=pipeline.year_commissioned,
+            description=pipeline.description,
             centroid_lat=pipeline.centroid.lat,
             centroid_lon=pipeline.centroid.lon,
             specific_data={
@@ -100,6 +103,7 @@ class ObjectService:
             owner=powerline.owner,
             type=ObjectType.POWERLINE,
             year_commissioned=powerline.year_commissioned,
+            description=powerline.description,
             centroid_lat=powerline.centroid.lat,
             centroid_lon=powerline.centroid.lon,
             specific_data={

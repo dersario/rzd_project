@@ -1,3 +1,5 @@
+from typing import Optional
+
 from pydantic import BaseModel
 
 from app.schemas.geo import Point
@@ -9,6 +11,7 @@ class PowerLineBase(BaseModel):
     year_commissioned: int
     voltage_kv: int
     centroid: Point
+    description: Optional[str] = None
 
 
 class PowerLineRead(PowerLineBase):
@@ -29,5 +32,6 @@ class PowerLineCreate(PowerLineBase):
                 "year_commissioned": 1980,
                 "voltage_kv": 500,
                 "centroid": {"lat": 53.228661, "lon": 50.285445},
+                "description": "Описание ЛЭП",
             }
         }

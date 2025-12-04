@@ -1,3 +1,5 @@
+from typing import Optional
+
 from pydantic import BaseModel
 
 from app.schemas.geo import Point
@@ -10,6 +12,7 @@ class PipeLineBase(BaseModel):
     medium: str
     diameter_mm: int
     centroid: Point
+    description: Optional[str] = None
 
 
 class PipeLineRead(PipeLineBase):
@@ -31,5 +34,6 @@ class PipeLineCreate(PipeLineBase):
                 "medium": "gas",
                 "diameter_mm": 720,
                 "centroid": {"lat": 53.405487, "lon": 50.288284},
+                "description": "Описание трубопровода",
             }
         }

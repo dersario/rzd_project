@@ -1,3 +1,5 @@
+from typing import Optional
+
 from pydantic import BaseModel
 
 from app.schemas.geo import Point
@@ -9,6 +11,7 @@ class EmbankmentBase(BaseModel):
     year_commissioned: int
     type: str
     centroid: Point
+    description: Optional[str] = None
 
 
 class EmbankmentRead(EmbankmentBase):
@@ -21,12 +24,6 @@ class EmbankmentRead(EmbankmentBase):
 class EmbankmentCreate(EmbankmentBase):
     """Схема для создания новой насыпи"""
 
-    name: str
-    owner: str
-    year_commissioned: int
-    type: str
-    centroid: Point
-
     class Config:
         json_schema_extra = {
             "example": {
@@ -35,5 +32,6 @@ class EmbankmentCreate(EmbankmentBase):
                 "year_commissioned": 1960,
                 "type": "rail",
                 "centroid": {"lat": 53.392693, "lon": 50.311848},
+                "description": "Описание насыпи",
             }
         }
