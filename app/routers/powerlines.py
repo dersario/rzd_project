@@ -1,21 +1,20 @@
 from fastapi import APIRouter, Depends
-from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.auth import AuthorizedAccount
 from app.db.session import get_db
-from app.models.powerline import PowerLine
 from app.permissions import Authenticated
 from app.schemas.powerline import PowerLineCreate, PowerLineRead
-from app.services.mappers import powerline_to_read
+from app.services.object_service import ObjectService
 
 router = APIRouter(prefix="/powerlines", tags=["powerlines"])
 
 
 @router.get("/", response_model=list[PowerLineRead])
 def list_powerlines(db: Session = Depends(get_db)):
-    models = db.execute(select(PowerLine)).scalars().all()
-    return [powerline_to_read(m) for m in models]
+    """Получить список всех ЛЭП"""
+    service = ObjectService(db)
+    return service.get_powerlines()
 
 
 @router.post(
@@ -28,17 +27,6 @@ def create_powerline(
     powerline: PowerLineCreate,
     db: Session = Depends(get_db),
 ):
-    db_powerline = PowerLine(
-        name=powerline.name,
-        owner=powerline.owner,
-        year_commissioned=powerline.year_commissioned,
-        voltage_kv=powerline.voltage_kv,
-        centroid_lat=powerline.centroid.lat,
-        centroid_lon=powerline.centroid.lon,
-    )
-
-    db.add(db_powerline)
-    db.commit()
-    db.refresh(db_powerline)
-
-    return powerline_to_read(db_powerline)
+    """Создать новую ЛЭП"""
+    service = ObjectService(db)
+    return service.create_powerline(powerline)

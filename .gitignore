@@ -160,4 +160,4 @@ logs/
 # Temporary files
 tmp/
 temp/
-poetry.lock
+*.lock

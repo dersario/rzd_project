@@ -2,10 +2,8 @@ import random
 
 from sqlalchemy.orm import Session
 
-from app.models.bridge import Bridge
-from app.models.embankment import Embankment
-from app.models.pipeline import PipeLine
-from app.models.powerline import PowerLine
+from app.models.object import Object, ObjectType
+from app.repositories.object_repository import ObjectRepository
 
 OWNERS = [
     "СамараЭнерго",
@@ -16,12 +14,8 @@ OWNERS = [
 
 
 def seed_all(db: Session) -> None:
-    if (
-        db.query(PowerLine).first()
-        or db.query(PipeLine).first()
-        or db.query(Embankment).first()
-        or db.query(Bridge).first()
-    ):
+    repository = ObjectRepository(db)
+    if repository.get_all():
         return
 
     # Предопределенные координаты
@@ -64,56 +58,62 @@ def seed_all(db: Session) -> None:
 
     # Мосты
     for i, (lat, lon) in enumerate(bridges_data, 1):
-        db.add(
-            Bridge(
-                name=f"Мост-{i}",
-                owner=random.choice(OWNERS),
-                year_commissioned=random.randint(1960, 2020),
-                bridge_type=random.choice(["rail", "road", "pedestrian"]),
-                length_m=random.randint(50, 500),
-                centroid_lat=lat,
-                centroid_lon=lon,
-            )
+        obj = Object(
+            name=f"Мост-{i}",
+            owner=random.choice(OWNERS),
+            type=ObjectType.BRIDGE,
+            year_commissioned=random.randint(1960, 2020),
+            centroid_lat=lat,
+            centroid_lon=lon,
+            specific_data={
+                "bridge_type": random.choice(["rail", "road", "pedestrian"]),
+                "length_m": random.randint(50, 500),
+            },
         )
+        repository.create(obj)
 
     # Насыпи
     for i, (lat, lon) in enumerate(embankments_data, 1):
-        db.add(
-            Embankment(
-                name=f"Насыпь-{i}",
-                owner=random.choice(OWNERS),
-                year_commissioned=random.randint(1950, 2020),
-                type=random.choice(["rail", "road"]),
-                centroid_lat=lat,
-                centroid_lon=lon,
-            )
+        obj = Object(
+            name=f"Насыпь-{i}",
+            owner=random.choice(OWNERS),
+            type=ObjectType.EMBANKMENT,
+            year_commissioned=random.randint(1950, 2020),
+            centroid_lat=lat,
+            centroid_lon=lon,
+            specific_data={
+                "type": random.choice(["rail", "road"]),
+            },
         )
+        repository.create(obj)
 
     # ЛЭП
     for i, (lat, lon) in enumerate(powerlines_data, 1):
-        db.add(
-            PowerLine(
-                name=f"ЛЭП-{i}",
-                owner=random.choice(OWNERS),
-                year_commissioned=random.randint(1970, 2022),
-                voltage_kv=random.choice([35, 110, 220, 500]),
-                centroid_lat=lat,
-                centroid_lon=lon,
-            )
+        obj = Object(
+            name=f"ЛЭП-{i}",
+            owner=random.choice(OWNERS),
+            type=ObjectType.POWERLINE,
+            year_commissioned=random.randint(1970, 2022),
+            centroid_lat=lat,
+            centroid_lon=lon,
+            specific_data={
+                "voltage_kv": random.choice([35, 110, 220, 500]),
+            },
         )
+        repository.create(obj)
 
     # Трубопроводы
     for i, (lat, lon) in enumerate(pipelines_data, 1):
-        db.add(
-            PipeLine(
-                name=f"Трубопровод-{i}",
-                owner=random.choice(OWNERS),
-                year_commissioned=random.randint(1970, 2022),
-                medium=random.choice(["oil", "gas"]),
-                diameter_mm=random.choice([219, 325, 530, 720, 1020]),
-                centroid_lat=lat,
-                centroid_lon=lon,
-            )
+        obj = Object(
+            name=f"Трубопровод-{i}",
+            owner=random.choice(OWNERS),
+            type=ObjectType.PIPELINE,
+            year_commissioned=random.randint(1970, 2022),
+            centroid_lat=lat,
+            centroid_lon=lon,
+            specific_data={
+                "medium": random.choice(["oil", "gas"]),
+                "diameter_mm": random.choice([219, 325, 530, 720, 1020]),
+            },
         )
-
-    db.commit()
+        repository.create(obj)

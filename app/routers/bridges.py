@@ -1,21 +1,20 @@
 from fastapi import APIRouter, Depends
-from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.auth import AuthorizedAccount
 from app.db.session import get_db
-from app.models.bridge import Bridge
 from app.permissions import Authenticated
 from app.schemas.bridge import BridgeCreate, BridgeRead
-from app.services.mappers import bridge_to_read
+from app.services.object_service import ObjectService
 
 router = APIRouter(prefix="/bridges", tags=["bridges"])
 
 
 @router.get("/", response_model=list[BridgeRead])
 def list_bridges(db: Session = Depends(get_db)):
-    models = db.execute(select(Bridge)).scalars().all()
-    return [bridge_to_read(m) for m in models]
+    """Получить список всех мостов"""
+    service = ObjectService(db)
+    return service.get_bridges()
 
 
 @router.post(
@@ -25,18 +24,6 @@ def list_bridges(db: Session = Depends(get_db)):
     dependencies=[Depends(AuthorizedAccount(Authenticated()))],
 )
 def create_bridge(bridge: BridgeCreate, db: Session = Depends(get_db)):
-    db_bridge = Bridge(
-        name=bridge.name,
-        owner=bridge.owner,
-        year_commissioned=bridge.year_commissioned,
-        bridge_type=bridge.bridge_type,
-        length_m=bridge.length_m,
-        centroid_lat=bridge.centroid.lat,
-        centroid_lon=bridge.centroid.lon,
-    )
-
-    db.add(db_bridge)
-    db.commit()
-    db.refresh(db_bridge)
-
-    return bridge_to_read(db_bridge)
+    """Создать новый мост"""
+    service = ObjectService(db)
+    return service.create_bridge(bridge)

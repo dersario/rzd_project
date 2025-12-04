@@ -7,13 +7,13 @@ from fastapi.security import (
     HTTPAuthorizationCredentials,
     HTTPBearer,
 )
-from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.db.session import get_db
 from app.deps import Token
 from app.models.user import User
 from app.permissions import BasePermission
+from app.repositories.user_repository import UserRepository
 
 SecuritySchema = HTTPBearer(auto_error=False)
 
@@ -47,9 +47,8 @@ async def authenticate_user(
         return None
     token = credentials.credentials
     user_data = jwt.decode(token, token_secret, algorithms=["HS256"])
-    user = session.execute(
-        select(User).where(User.id == user_data["id"])
-    ).scalar_one_or_none()
+    repository = UserRepository(session)
+    user = repository.get_by_id(user_data["id"])
     if user is None:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED)
 

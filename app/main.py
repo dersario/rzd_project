@@ -10,6 +10,7 @@ from app.routers.bridges import router as bridges_router
 from app.routers.embankments import router as embankments_router
 from app.routers.pipelines import router as pipelines_router
 from app.routers.powerlines import router as powerlines_router
+from app.routers.search import router as search_router
 from app.routers.users import users_routers
 from app.settings import Settings
 
@@ -17,6 +18,7 @@ from app.settings import Settings
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     Base.metadata.create_all(bind=engine)
+
     # seed after tables are created
     try:
         from app.db.session import SessionLocal
@@ -29,11 +31,12 @@ async def lifespan(app: FastAPI):
             db.close()
     except Exception:
         pass
+
     yield
 
 
 def setup_app():
-    app = FastAPI(title="FastAPI App", lifespan=lifespan)
+    app = FastAPI(title="RZD Project", lifespan=lifespan)
 
     app.add_middleware(
         CORSMiddleware,
@@ -56,4 +59,5 @@ def setup_app():
     app.include_router(embankments_router)
     app.include_router(bridges_router)
     app.include_router(accident_router)
+    app.include_router(search_router)
     return app

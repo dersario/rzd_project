@@ -1,54 +1,55 @@
 from typing import Any
 
 from app.models.accidents import Accident
-from app.models.bridge import Bridge
-from app.models.embankment import Embankment
-from app.models.pipeline import PipeLine
-from app.models.powerline import PowerLine
+from app.models.object import Object
 
 
-def powerline_to_read(model: PowerLine) -> dict[str, Any]:
+def powerline_to_read(model: Object) -> dict[str, Any]:
+    specific_data = model.specific_data or {}
     return {
         "id": model.id,
         "name": model.name,
         "owner": model.owner,
         "year_commissioned": model.year_commissioned,
-        "voltage_kv": model.voltage_kv,
+        "voltage_kv": specific_data.get("voltage_kv"),
         "centroid": {"lat": model.centroid_lat, "lon": model.centroid_lon},
     }
 
 
-def pipeline_to_read(model: PipeLine) -> dict[str, Any]:
+def pipeline_to_read(model: Object) -> dict[str, Any]:
+    specific_data = model.specific_data or {}
     return {
         "id": model.id,
         "name": model.name,
         "owner": model.owner,
         "year_commissioned": model.year_commissioned,
-        "medium": model.medium,
-        "diameter_mm": model.diameter_mm,
+        "medium": specific_data.get("medium"),
+        "diameter_mm": specific_data.get("diameter_mm"),
         "centroid": {"lat": model.centroid_lat, "lon": model.centroid_lon},
     }
 
 
-def embankment_to_read(model: Embankment) -> dict[str, Any]:
+def embankment_to_read(model: Object) -> dict[str, Any]:
+    specific_data = model.specific_data or {}
     return {
         "id": model.id,
         "name": model.name,
         "owner": model.owner,
         "year_commissioned": model.year_commissioned,
-        "type": model.type,
+        "type": specific_data.get("type"),
         "centroid": {"lat": model.centroid_lat, "lon": model.centroid_lon},
     }
 
 
-def bridge_to_read(model: Bridge) -> dict[str, Any]:
+def bridge_to_read(model: Object) -> dict[str, Any]:
+    specific_data = model.specific_data or {}
     return {
         "id": model.id,
         "name": model.name,
         "owner": model.owner,
         "year_commissioned": model.year_commissioned,
-        "bridge_type": model.bridge_type,
-        "length_m": model.length_m,
+        "bridge_type": specific_data.get("bridge_type"),
+        "length_m": specific_data.get("length_m"),
         "centroid": {"lat": model.centroid_lat, "lon": model.centroid_lon},
     }
 
